@@ -20,7 +20,7 @@ def fn_exponencial_beta_sin_cliques_chicos(beta):
             ret_array = beta * ((1 + beta)**(-n))
             ret_array[0] = 0
             ret_array[1] = 0
-            ret_array = ret_array / sum(ret_array)
+            # ret_array = ret_array / sum(ret_array)
             return ret_array
 
         else:
