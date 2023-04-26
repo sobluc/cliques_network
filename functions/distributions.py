@@ -14,6 +14,22 @@ def fn_exponencial_beta(beta):
 
     return exp_return
 
+def fn_exponencial_beta_sin_cliques_chicos(beta):
+    def exp_return(n):
+        if isinstance(n, np.ndarray):
+            ret_array = beta * ((1 + beta)**(-n))
+            ret_array[0] = 0
+            ret_array[1] = 0
+            ret_array = ret_array / sum(ret_array)
+            return ret_array
+
+        else:
+            if n == 1 or n == 2:
+                return 0 
+            else:
+                return beta * ((1 + beta)**(-n)) 
+
+    return exp_return
 
 def fn_constante(cte):
 
