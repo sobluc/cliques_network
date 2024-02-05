@@ -1,0 +1,4 @@
+numpy==1.23.2
+matplotlib==3.5.3
+networkx==2.8.5
+igraph==0.10.2
