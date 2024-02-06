@@ -318,7 +318,6 @@ class Red():
 
 if __name__ == "__main__":
 
-
     from my_package.my_functions import distributions as mis_distr
 
     fn = mis_distr.fn_exponencial_beta(0.4)
