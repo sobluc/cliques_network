@@ -1,3 +1,14 @@
+# -----------------------------------------------------------------------------------------------
+
+# Archivo con la declaración de la clase Red() para generar redes de cliques.
+#
+# fn es la distribución de probabilidad para el tamaño de cliques (debe estar truncada y f0 = 0).
+# Q es la cantidad de cliques en el sistema.
+# gamma es la probabilidad de que un nodo tenga un enlace a un nodo en otro clique.
+
+# -----------------------------------------------------------------------------------------------
+
+
 import numpy as np
 from matplotlib import pyplot as plt
 import networkx as nx
@@ -6,14 +17,13 @@ import igraph
 
 
 class Red():
-    '''
-        Attributes : -> Q = total number of cliques (int)
-                    -> n_max = maximum size a cliue can have (int)
-                    -> gamma = probability of a node having an edge to connecting to other clique (float)
-                    -> fn = probability distribution for a clique being of size n (function)
-                    -> clique_list = clique list (list[nx.Graph])
-                    -> red_total = full network (nx.Graph)
-    '''
+    # Atributos : -> Q = numero total de cliques (int)
+    #             -> n_max = maximo tamaño de un clique (int)
+    #             -> gamma = probabilidad de que un nodo tenga enlace a otro clique (float)
+    #             -> fn = distribución de probabilidad de los tamaños de cada clique (function)
+    #             -> clique_list = lista de cliques (list[nx.Graph])
+    #             -> red_total = red total (nx.Graph)
+
 
     def __init__(self, Q, Gamma , fn, n_max):
                 
@@ -25,10 +35,10 @@ class Red():
         self.clique_list = [] # lista con los cliques de la red 
         
 
-        # Genero una seed aleatoria:
+        # Genero una seed aleatoria
         np.random.seed()
 
-        # Creo un array de los posibles valores de tamaño de clique :
+        # Creo un array de los posibles valores de tamaño de clique
         n_vals = np.arange(1, n_max + 1)
         f_n_vals = fn(n_vals)
         f_n_vals = f_n_vals / np.sum(f_n_vals) # normalizo
@@ -36,24 +46,24 @@ class Red():
         for i in range(Q):            
             n = np.random.choice(n_vals, p = f_n_vals)
             
-            aux_clique = nx.complete_graph(n) # genero el clique
+            # genero el clique
+            aux_clique = nx.complete_graph(n) 
             self.clique_list.append(aux_clique)
 
         cuenta = 0
         for clique in self.clique_list:
-            for  node in clique.nodes:
+            for node in clique.nodes:
                 clique.nodes[node]["nro_clique"] = cuenta
                 clique.nodes[node]["ext_connection"] = False
 
             cuenta += 1  
 
-        self.red_total_cliques_desconectados = nx.disjoint_union_all(self.clique_list) #, rename = name_list) # red_total es un grafo de la red completa
+        self.red_total_cliques_desconectados = nx.disjoint_union_all(self.clique_list)
         nx.set_edge_attributes(self.red_total_cliques_desconectados, False, name = "largo_alcance")
 
         self.red_total_cliques_conectados = self.red_total_cliques_desconectados.copy()
 
-        # # Asigno los enlaces entre cliques :
-        
+        # Asigno los enlaces entre cliques
         aux_node_list = []
         for nodo in self.red_total_cliques_conectados.nodes():
             nro_random = np.random.choice([0,1], p = [1 - self.gamma, self.gamma])        
@@ -62,9 +72,8 @@ class Red():
             
         np.random.shuffle(aux_node_list)
 
-        while len(aux_node_list) > 1:
-            
-            
+        # elijo las uniones entre nodos con enlaces a otros cliques
+        while len(aux_node_list) > 1:            
             nodo0 = aux_node_list[0]
             
             l = len(aux_node_list)
@@ -96,9 +105,6 @@ class Red():
             self.red_total_cliques_conectados.nodes[nodo1]["ext_connection"] = True
 
         
-         
-
-
     def guardar_archivo_graphml(self, file_name):
         grafo = igraph.Graph.from_networkx(self.red_total_cliques_conectados)
         grafo.write_graphml(file_name + ".graphml")
@@ -198,13 +204,6 @@ class Red():
     def component_sizes(self): 
         Gcc = nx.connected_components(self.red_total_cliques_conectados)
         return [len(g) for g in Gcc]
-
-#     def average_path_componente_gigante(self):
-#         Gcc = sorted(nx.connected_components(self.red_total_cliques_conectados), key=len, reverse=True)
-#         componente_gigante = self.red_total_cliques_conectados.subgraph(Gcc[0])
-
-#         return nx.average_shortest_path_length(componente_gigante)
-
 
     def cantidad_de_cliques_en_mayor_componente(self):
         Gcc = sorted(nx.connected_components(self.red_total_cliques_conectados), key=len, reverse=True)
@@ -320,14 +319,9 @@ class Red():
 if __name__ == "__main__":
 
 
-    def fn(n):
-        return np.exp(-0.05 * n)
-
     from my_package.my_functions import distributions as mis_distr
 
-
-
-    fun_kro = mis_distr.fn_constante(5)
+    fn = mis_distr.fn_exponencial_beta(0.4)
 
     red = Red(10, 0.5, fn, 10)
 
